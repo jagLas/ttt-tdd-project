@@ -1,7 +1,12 @@
 const TTT = require('./ttt')
+const Screen = require('./screen')
 
 class ComputerPlayer {
 
+  constructor (symbol) {
+    this.symbol = symbol;
+  }
+    
   static getValidMoves(grid) {
     const validMoves = [];  //creates an array for valid moves
     for (let row = 0; row < grid.length; row++){
@@ -25,6 +30,7 @@ class ComputerPlayer {
   }
 
   static getWinningMoves(grid, symbol) {
+    const TTT = require('./ttt')  //was not finding original
     let winningMove;
     const validMoves = this.getValidMoves(grid);
 
