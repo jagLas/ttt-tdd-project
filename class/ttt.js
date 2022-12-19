@@ -1,11 +1,13 @@
 const Screen = require("./screen");
 const Cursor = require("./cursor");
+const ComputerPlayer = require("./computer-player");
 
 class TTT {
 
   constructor() {
 
-    this.playerTurn = "X";
+    this.playerTurn = "O";
+    this.cpu;
 
     this.grid = [[' ',' ',' '],
                  [' ',' ',' '],
@@ -16,7 +18,7 @@ class TTT {
     // Initialize a 3x3 tic-tac-toe grid
     Screen.initialize(3, 3);
     Screen.setGridlines(true);
-    Screen.setBackgroundColor(0, 0, this.cursor.cursorColor);
+    Screen.setBackgroundColor(this.cursor.row, this.cursor.col, this.cursor.cursorColor);
 
     // Section for commands
     Screen.addCommand('up', 'move cursor up', TTT.upCommand.bind(this));
@@ -24,10 +26,40 @@ class TTT {
     Screen.addCommand('left', 'move cursor left', TTT.leftCommand.bind(this));
     Screen.addCommand('right', 'move cursor right', TTT.rightCommand.bind(this));
     Screen.addCommand('space', 'place an X or an O', TTT.placeMove.bind(this));
+    Screen.addCommand('x', 'press x have cpu play X', TTT.addComputer.bind(this, 'X'));
+    Screen.addCommand('o', 'press o have cpu play O', TTT.addComputer.bind(this, 'O'));
 
     //render screen to begin
+    Screen.setMessage(`It is Player ${this.playerTurn}'s turn\nPress 'space' to make a move and play two-player\nPress 'x' to have the computer play x's\nPress 'o' to have the computer play O's`);
+    Screen.render();
+  }
+
+  static addComputer(symbol) {
+    this.cpu = new ComputerPlayer(symbol);
+   
+    if (this.cpu.symbol === 'O') {
+      this.cpuMove();
+      Screen.setMessage(`Computer was set to ${symbol} and made it's first move.\nIt is your turn:\nPress 'space' to place your move.`)
+
+    } else {
+      Screen.setMessage(`Computer was set to ${symbol}.\nIt is your turn:\nPress 'space' to place your move.`)
+    }
+    Screen.render();
+  }
+
+  cpuMove() {
+    let move = ComputerPlayer.getSmartMove(Screen.grid, this.cpu.symbol);
+    Screen.setGrid(move.row, move.col, this.playerTurn)
+    Screen.render();
+
+    this.changeTurn();
     Screen.setMessage(`It is Player ${this.playerTurn}'s turn`);
     Screen.render();
+
+    let winner = TTT.checkWin(Screen.grid);
+    if(winner){
+      TTT.endGame(winner);
+    }
   }
 
   static upCommand() {
@@ -50,15 +82,31 @@ class TTT {
     Screen.render();
   }
 
-  static placeMove() {
-    //set the grid to display move and render screen
-    Screen.setGrid(this.cursor.row, this.cursor.col, this.playerTurn);
-    
+  changeTurn(){
     if (this.playerTurn === 'O') {
       this.playerTurn = 'X';
     } else {
       this.playerTurn = 'O';
     }
+  }
+
+  static placeMove() {
+    //set the grid to display move and render screen
+    Screen.setGrid(this.cursor.row, this.cursor.col, this.playerTurn);
+    Screen.render();
+    
+    this.changeTurn();
+
+
+
+    // if (this.cpu.symbol === this.playerTurn) {
+    //   ComputerPlayer.cpuMove(this.cpu.symbol);
+    //   if (this.playerTurn === 'O') {
+    //     this.playerTurn = 'X';
+    //   } else {
+    //     this.playerTurn = 'O';
+    //   }
+    // }
     Screen.setMessage(`It is Player ${this.playerTurn}'s turn`);
     Screen.render();
 
@@ -66,6 +114,10 @@ class TTT {
     let winner = TTT.checkWin(Screen.grid);
     if(winner){
       TTT.endGame(winner);
+    }
+
+    if (this.cpu) {
+      this.cpuMove(this.cpu.symbol)
     }
 
 
