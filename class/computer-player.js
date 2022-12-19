@@ -62,6 +62,7 @@ class ComputerPlayer {
       return nextMove;
     }
 
+    return this.randomMove(grid);
   }
 
 }
