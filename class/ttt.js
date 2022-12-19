@@ -5,7 +5,7 @@ class TTT {
 
   constructor() {
 
-    this.playerTurn = "X";
+    this.playerTurn = "O";
 
     this.grid = [[' ',' ',' '],
                  [' ',' ',' '],
